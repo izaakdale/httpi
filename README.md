@@ -25,13 +25,13 @@ transport.SetRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
 resp, err := cli.Get("http://example.com/hello")
 ```
 
-There is also the option to skip Transport entirely and just get a Client.
+There is also the option to skip initializing Transport yourself and just get a preloaded Client.
 ```go
 cli := httpi.NewClient()
 httpi.SetRoundTripperFunc(cli, someRoundTripperFunc)
 ```
 
-If you are more interested in the errors that are returned you can use RequestValidationFunc.
+If you are more interested in returning errors based on the request you can use RequestValidationFunc.
 ```go
 transport := httpi.NewTransport()
 cli := &http.Client{Transport: transport}
