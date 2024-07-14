@@ -11,12 +11,18 @@ Get a Transport (implements http.RoundTripper) and use SetRoundTripperFunc to de
 transport := httpi.NewTransport()
 cli := &http.Client{Transport: transport}
 transport.SetRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
-  return &http.Response{
-    StatusCode: 200,
-    Body:       io.NopCloser(bytes.NewReader(body)),
-  }, nil
+	if r.URL.Path != "/hello" {
+		return &http.Response{
+			StatusCode: http.StatusNotFound,
+			Body:       io.NopCloser(bytes.NewReader([]byte("Not Found"))),
+		}, nil
+	}
+	return &http.Response{
+		StatusCode: http.StatusOK,
+		Body:       body,
+	}, nil
 })
-resp, err := cli.Get(url)
+resp, err := cli.Get("http://example.com/hello")
 ```
 
 There is also the option to skip Transport entirely and just get a Client.

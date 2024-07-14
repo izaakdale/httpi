@@ -1,9 +1,9 @@
 package httpi
 
 import (
-	"bytes"
 	"io"
 	"net/http"
+	"strings"
 )
 
 type (
@@ -26,7 +26,7 @@ var (
 	defaultRoundTripperFunc = func(r *http.Request) (*http.Response, error) {
 		return &http.Response{
 			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader([]byte("Hello from the interceptor!"))),
+			Body:       io.NopCloser(strings.NewReader("Hello from the interceptor!")),
 		}, nil
 	}
 	// defaultRequestValidationFunc is the default RequestValidationFunc implementation. Does no validation and returns nil error.
@@ -53,8 +53,10 @@ func NewTransport(opts ...Option) *Transport {
 
 // RoundTrip implements the http.RoundTripper interface.
 func (i *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
-	if err := i.requestValidationFunc(req); err != nil {
-		return nil, err
+	if i.requestValidationFunc != nil {
+		if err := i.requestValidationFunc(req); err != nil {
+			return nil, err
+		}
 	}
 	if i.roundTripperFunc != nil {
 		return i.roundTripperFunc(req)
