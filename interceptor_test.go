@@ -74,13 +74,12 @@ func TestInterceptorSetRoundTripperFunc(t *testing.T) {
 	cli := &http.Client{Transport: inctr}
 
 	t.Run("custom body", func(t *testing.T) {
-		reset := inctr.SetRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
+		inctr.SetRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
 			return &http.Response{
 				StatusCode: 200,
 				Body:       io.NopCloser(bytes.NewReader(body)),
 			}, nil
 		})
-		defer reset()
 
 		resp, err := cli.Get(url)
 		if err != nil {
@@ -101,13 +100,12 @@ func TestInterceptorSetRoundTripperFunc(t *testing.T) {
 	})
 
 	t.Run("other status code", func(t *testing.T) {
-		reset := inctr.SetRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
+		inctr.SetRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
 			return &http.Response{
 				StatusCode: 201,
 				Body:       io.NopCloser(bytes.NewReader(body)),
 			}, nil
 		})
-		defer reset()
 
 		resp, err := cli.Get(url)
 		if err != nil {
@@ -128,10 +126,9 @@ func TestInterceptorSetRoundTripperFunc(t *testing.T) {
 	})
 
 	t.Run("error", func(t *testing.T) {
-		reset := inctr.SetRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
+		inctr.SetRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
 			return nil, errTest
 		})
-		defer reset()
 
 		resp, err := cli.Get(url)
 		if !errors.Is(err, errTest) {
@@ -148,10 +145,9 @@ func TestInterceptorSetRequestValidation(t *testing.T) {
 	cli := &http.Client{Transport: inctr}
 
 	t.Run("valid request", func(t *testing.T) {
-		reset := inctr.SetRequestValidationFunc(func(r *http.Request) error {
+		inctr.SetRequestValidationFunc(func(r *http.Request) error {
 			return nil
 		})
-		defer reset()
 
 		resp, err := cli.Get(url)
 		if err != nil {
@@ -164,10 +160,9 @@ func TestInterceptorSetRequestValidation(t *testing.T) {
 	})
 
 	t.Run("return error", func(t *testing.T) {
-		reset := inctr.SetRequestValidationFunc(func(_ *http.Request) error {
+		inctr.SetRequestValidationFunc(func(_ *http.Request) error {
 			return errTest
 		})
-		defer reset()
 
 		resp, err := cli.Get(url)
 		if !errors.Is(err, errTest) {
@@ -179,13 +174,12 @@ func TestInterceptorSetRequestValidation(t *testing.T) {
 	})
 
 	t.Run("validate request", func(t *testing.T) {
-		reset := inctr.SetRequestValidationFunc(func(r *http.Request) error {
+		inctr.SetRequestValidationFunc(func(r *http.Request) error {
 			if r.URL.Scheme != "https" {
 				return errors.New("invalid scheme")
 			}
 			return nil
 		})
-		defer reset()
 
 		_, err := cli.Get("https://hypertexttransferprotocolsecure.com")
 		if err != nil {
@@ -197,21 +191,4 @@ func TestInterceptorSetRequestValidation(t *testing.T) {
 			t.Fatal("expected error, got nil")
 		}
 	})
-
-	// Should be reset back to default.
-	resp, err := cli.Get(url)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		t.Fatalf("expected 200, got %d", resp.StatusCode)
-	}
-	respBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !strings.Contains(string(respBytes), "Hello from the interceptor!") {
-		t.Fatalf("expected Hello from the interceptor!, got %s", respBytes)
-	}
 }

@@ -63,23 +63,11 @@ func New(opts ...Option) *Interceptor {
 }
 
 // SetRoundTripperFunc sets the http.Response and error to be returned by the client.
-func (i *Interceptor) SetRoundTripperFunc(f RoundTripperFunc) func() {
+func (i *Interceptor) SetRoundTripperFunc(f RoundTripperFunc) {
 	i.roundTripperFunc = f
-	return i.ResetRoundTripperFunc
-}
-
-// ResetRoundTripperFunc resets the roundTripperFunc to the default implementation.
-func (i *Interceptor) ResetRoundTripperFunc() {
-	i.roundTripperFunc = DefaultRoundTripperFunc
 }
 
 // SetRequestValidationFunc sets the request validation function to be used by the client before making a request.
-func (i *Interceptor) SetRequestValidationFunc(f RequestValidationFunc) func() {
+func (i *Interceptor) SetRequestValidationFunc(f RequestValidationFunc) {
 	i.requestValidationFunc = f
-	return i.ResetRequestValidationFunc
-}
-
-// ResetRequestValidationFunc resets the requestValidationFunc to the default implementation.
-func (i *Interceptor) ResetRequestValidationFunc() {
-	i.requestValidationFunc = DefaultRequestValidationFunc
 }
