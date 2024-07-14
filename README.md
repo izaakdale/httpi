@@ -6,9 +6,9 @@ go get github.com/izaakdale/httpi
 
 ### A RoundTripper library that is primarily designed mocking/stubbing http.Client calls.
 
-Get an Interceptor (implements RoundTripper and to be used as a http.Transport) and use SetRoundTripperFunc to define the response and error retuned by client requests.
+Get a Transport (implements RoundTripper) and use SetRoundTripperFunc to define the response and error retuned by client requests.
 ```go
-transport := httpi.New()
+transport := httpi.NewTransport()
 cli := &http.Client{Transport: transport}
 transport.SetRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
   return &http.Response{
@@ -19,15 +19,15 @@ transport.SetRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
 resp, err := cli.Get(url)
 ```
 
-There is also the option to skip Inteceptor entirely and just get a http.Client
+There is also the option to skip Transport entirely and just get a Client.
 ```go
 cli := httpi.NewClient()
 httpi.SetRoundTripperFunc(cli, someRoundTripperFunc)
 ```
 
-If you are more interested in the errors that are returned you can use RequestValidationFunc
+If you are more interested in the errors that are returned you can use RequestValidationFunc.
 ```go
-transport := httpi.New()
+transport := httpi.NewTransport()
 cli := &http.Client{Transport: transport}
 
 transport.SetRequestValidationFunc(func(_ *http.Request) error {
@@ -49,7 +49,7 @@ _, err = http.Get(url)
 
 Or use the WithOptions
 ```go
-transport := httpi.New(WithRoundTripperFunc(someRoundTripFunc), WithSetRequestValidationFunc(someValidationFunc))
+transport := httpi.NewTransport(WithRoundTripperFunc(someRoundTripFunc), WithSetRequestValidationFunc(someValidationFunc))
 cli := &http.Client{Transport: transport}
 
 cli = httpi.NewClient(WithRoundTripperFunc(someFunc), WithSetRequestValidationFunc(someValidationFunc))
