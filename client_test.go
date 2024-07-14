@@ -13,7 +13,7 @@ import (
 
 func TestDefaultClient(t *testing.T) {
 	cli := httpi.NewClient()
-	resp, err := cli.Get("http://example.com")
+	resp, err := cli.Get(url)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -42,7 +42,7 @@ func TestClientSetRoundTripperFunc(t *testing.T) {
 			}, nil
 		})
 		defer reset()
-		resp, err := cli.Get("http://example.com")
+		resp, err := cli.Get(url)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -68,7 +68,7 @@ func TestClientSetRoundTripperFunc(t *testing.T) {
 			}, nil
 		})
 		defer reset()
-		resp, err := cli.Get("http://example.com")
+		resp, err := cli.Get(url)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -91,7 +91,7 @@ func TestClientSetRoundTripperFunc(t *testing.T) {
 			return nil, errTest
 		})
 		defer reset()
-		_, err := cli.Get("http://example.com")
+		_, err := cli.Get(url)
 		if !errors.Is(err, errTest) {
 			t.Fatalf("expected %v, got %v", http.ErrNotSupported, err)
 		}
@@ -106,7 +106,7 @@ func TestClientSetRequestValidationFunc(t *testing.T) {
 			return nil
 		})
 		defer reset()
-		resp, err := cli.Get("http://example.com")
+		resp, err := cli.Get(url)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -124,12 +124,12 @@ func TestClientSetRequestValidationFunc(t *testing.T) {
 		}
 	})
 
-	t.Run("invalid request", func(t *testing.T) {
-		reset := httpi.SetRequestValidationFunc(cli, func(r *http.Request) error {
+	t.Run("return error", func(t *testing.T) {
+		reset := httpi.SetRequestValidationFunc(cli, func(_ *http.Request) error {
 			return errTest
 		})
 		defer reset()
-		_, err := cli.Get("http://example.com")
+		_, err := cli.Get(url)
 		if !errors.Is(err, errTest) {
 			t.Fatalf("expected %v, got %v", errTest, err)
 		}
@@ -138,7 +138,7 @@ func TestClientSetRequestValidationFunc(t *testing.T) {
 	t.Run("validate request", func(t *testing.T) {
 		reset := httpi.SetRequestValidationFunc(cli, func(r *http.Request) error {
 			if r.URL.Scheme != "https" {
-				return errors.New("invalid scheme")
+				return http.ErrSchemeMismatch
 			}
 			return nil
 		})

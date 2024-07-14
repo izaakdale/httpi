@@ -74,7 +74,7 @@ func TestInterceptorSetRoundTripperFunc(t *testing.T) {
 	cli := &http.Client{Transport: inctr}
 
 	t.Run("custom body", func(t *testing.T) {
-		reset := httpi.SetRoundTripperFunc(cli, func(r *http.Request) (*http.Response, error) {
+		reset := inctr.SetRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
 			return &http.Response{
 				StatusCode: 200,
 				Body:       io.NopCloser(bytes.NewReader(body)),
@@ -101,7 +101,7 @@ func TestInterceptorSetRoundTripperFunc(t *testing.T) {
 	})
 
 	t.Run("other status code", func(t *testing.T) {
-		reset := httpi.SetRoundTripperFunc(cli, func(r *http.Request) (*http.Response, error) {
+		reset := inctr.SetRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
 			return &http.Response{
 				StatusCode: 201,
 				Body:       io.NopCloser(bytes.NewReader(body)),
@@ -128,7 +128,7 @@ func TestInterceptorSetRoundTripperFunc(t *testing.T) {
 	})
 
 	t.Run("error", func(t *testing.T) {
-		reset := httpi.SetRoundTripperFunc(cli, func(r *http.Request) (*http.Response, error) {
+		reset := inctr.SetRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
 			return nil, errTest
 		})
 		defer reset()
@@ -148,7 +148,7 @@ func TestInterceptorSetRequestValidation(t *testing.T) {
 	cli := &http.Client{Transport: inctr}
 
 	t.Run("valid request", func(t *testing.T) {
-		reset := httpi.SetRequestValidationFunc(cli, func(r *http.Request) error {
+		reset := inctr.SetRequestValidationFunc(func(r *http.Request) error {
 			return nil
 		})
 		defer reset()
@@ -163,8 +163,8 @@ func TestInterceptorSetRequestValidation(t *testing.T) {
 		}
 	})
 
-	t.Run("invalid request", func(t *testing.T) {
-		reset := httpi.SetRequestValidationFunc(cli, func(r *http.Request) error {
+	t.Run("return error", func(t *testing.T) {
+		reset := inctr.SetRequestValidationFunc(func(_ *http.Request) error {
 			return errTest
 		})
 		defer reset()
