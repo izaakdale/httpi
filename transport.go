@@ -22,15 +22,15 @@ type (
 )
 
 var (
-	// DefaultRoundTripperFunc is the default RoundTripperFunc implementation. Returns a 200 OK response with a message.
-	DefaultRoundTripperFunc = func(r *http.Request) (*http.Response, error) {
+	// defaultRoundTripperFunc is the default RoundTripperFunc implementation. Returns a 200 OK response with a message.
+	defaultRoundTripperFunc = func(r *http.Request) (*http.Response, error) {
 		return &http.Response{
 			StatusCode: http.StatusOK,
 			Body:       io.NopCloser(bytes.NewReader([]byte("Hello from the interceptor!"))),
 		}, nil
 	}
-	// DefaultRequestValidationFunc is the default RequestValidationFunc implementation. Does no validation and returns nil error.
-	DefaultRequestValidationFunc = func(r *http.Request) error {
+	// defaultRequestValidationFunc is the default RequestValidationFunc implementation. Does no validation and returns nil error.
+	defaultRequestValidationFunc = func(r *http.Request) error {
 		return nil
 	}
 )
@@ -39,8 +39,8 @@ var (
 // client := http.Client{Transport: httpi.NewTransport()}
 func NewTransport(opts ...Option) *Transport {
 	options := options{
-		roundTripperFunc:      DefaultRoundTripperFunc,
-		requestValidationFunc: DefaultRequestValidationFunc,
+		roundTripperFunc:      defaultRoundTripperFunc,
+		requestValidationFunc: defaultRequestValidationFunc,
 	}
 	for _, opt := range opts {
 		opt.apply(&options)
