@@ -1,3 +1,3 @@
-module github.com/izaakdale/interceptor
+module github.com/izaakdale/httpi
 
-go 1.22.0
+go 1.22
