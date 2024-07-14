@@ -8,9 +8,9 @@ go get github.com/izaakdale/httpi
 
 Get an Interceptor (implements RoundTripper and to be used as a http.Transport) and use SetRoundTripperFunc to define the response and error retuned by client requests.
 ```go
-inctr := httpi.New()
-cli := &http.Client{Transport: inctr}
-inctr.SetRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
+transport := httpi.New()
+cli := &http.Client{Transport: transport}
+transport.SetRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
   return &http.Response{
     StatusCode: 200,
     Body:       io.NopCloser(bytes.NewReader(body)),
@@ -27,10 +27,10 @@ httpi.SetRoundTripperFunc(cli, someRoundTripperFunc)
 
 If you are more interested in the errors that are returned you can use RequestValidationFunc
 ```go
-inctr := httpi.New()
-cli := &http.Client{Transport: inctr}
+transport := httpi.New()
+cli := &http.Client{Transport: transport}
 
-inctr.SetRequestValidationFunc(func(_ *http.Request) error {
+transport.SetRequestValidationFunc(func(_ *http.Request) error {
   return errTest
 })
 
@@ -49,8 +49,8 @@ _, err = http.Get(url)
 
 Or use the WithOptions
 ```go
-inctr := httpi.New(WithRoundTripperFunc(someRoundTripFunc), WithSetRequestValidationFunc(someValidationFunc))
-cli := &http.Client{Transport: inctr}
+transport := httpi.New(WithRoundTripperFunc(someRoundTripFunc), WithSetRequestValidationFunc(someValidationFunc))
+cli := &http.Client{Transport: transport}
 
 cli = httpi.NewClient(WithRoundTripperFunc(someFunc), WithSetRequestValidationFunc(someValidationFunc))
 ```

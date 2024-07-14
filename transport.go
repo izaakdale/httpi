@@ -7,10 +7,10 @@ import (
 )
 
 type (
-	// Interceptor is an http.RoundTripper.
+	// Transport is an http.RoundTripper.
 	// Use SetRoundTripperFunc to define the desired output of a http.Client request.
 	// Use SetRequestValidationFunc to define request validation logic.
-	Interceptor struct {
+	Transport struct {
 		roundTripperFunc      RoundTripperFunc
 		requestValidationFunc RequestValidationFunc
 	}
@@ -35,8 +35,24 @@ var (
 	}
 )
 
+// NewTransport returns a new Interceptor that can be used as a http.RoundTripper.
+// client := http.Client{Transport: httpi.NewTransport()}
+func NewTransport(opts ...Option) *Transport {
+	options := options{
+		roundTripperFunc:      DefaultRoundTripperFunc,
+		requestValidationFunc: DefaultRequestValidationFunc,
+	}
+	for _, opt := range opts {
+		opt.apply(&options)
+	}
+	return &Transport{
+		roundTripperFunc:      options.roundTripperFunc,
+		requestValidationFunc: options.requestValidationFunc,
+	}
+}
+
 // RoundTrip implements the http.RoundTripper interface.
-func (i *Interceptor) RoundTrip(req *http.Request) (*http.Response, error) {
+func (i *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	if err := i.requestValidationFunc(req); err != nil {
 		return nil, err
 	}
@@ -46,28 +62,12 @@ func (i *Interceptor) RoundTrip(req *http.Request) (*http.Response, error) {
 	return http.DefaultTransport.RoundTrip(req)
 }
 
-// New returns a new Interceptor that can be used as a http.RoundTripper.
-// client := http.Client{Transport: httpi.New()}
-func New(opts ...Option) *Interceptor {
-	options := options{
-		roundTripperFunc:      DefaultRoundTripperFunc,
-		requestValidationFunc: DefaultRequestValidationFunc,
-	}
-	for _, opt := range opts {
-		opt.apply(&options)
-	}
-	return &Interceptor{
-		roundTripperFunc:      options.roundTripperFunc,
-		requestValidationFunc: options.requestValidationFunc,
-	}
-}
-
 // SetRoundTripperFunc sets the http.Response and error to be returned by the client.
-func (i *Interceptor) SetRoundTripperFunc(f RoundTripperFunc) {
+func (i *Transport) SetRoundTripperFunc(f RoundTripperFunc) {
 	i.roundTripperFunc = f
 }
 
 // SetRequestValidationFunc sets the request validation function to be used by the client before making a request.
-func (i *Interceptor) SetRequestValidationFunc(f RequestValidationFunc) {
+func (i *Transport) SetRequestValidationFunc(f RequestValidationFunc) {
 	i.requestValidationFunc = f
 }

@@ -11,7 +11,7 @@ import (
 )
 
 func TestInterceptorOptions(t *testing.T) {
-	inctr := httpi.New(
+	inctr := httpi.NewTransport(
 		httpi.WithRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
 			return &http.Response{
 				StatusCode: http.StatusAccepted,

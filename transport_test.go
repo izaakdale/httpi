@@ -18,8 +18,8 @@ var (
 )
 
 func TestDefaultInterceptor(t *testing.T) {
-	inctr := httpi.New()
-	cli := &http.Client{Transport: inctr}
+	transport := httpi.NewTransport()
+	cli := &http.Client{Transport: transport}
 
 	resp, err := cli.Get(url)
 	if err != nil {
@@ -40,7 +40,7 @@ func TestDefaultInterceptor(t *testing.T) {
 	}
 
 	// Test that default http.Transport is used when roundTripperFunc is nil
-	defaultStub := httpi.New(
+	defaultStub := httpi.NewTransport(
 		httpi.WithRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
 			return &http.Response{
 				StatusCode: http.StatusTeapot,
@@ -49,7 +49,7 @@ func TestDefaultInterceptor(t *testing.T) {
 		}),
 	)
 	http.DefaultTransport = defaultStub
-	inctr.SetRoundTripperFunc(nil)
+	transport.SetRoundTripperFunc(nil)
 
 	resp, err = cli.Get(url)
 	if err != nil {
@@ -70,11 +70,11 @@ func TestDefaultInterceptor(t *testing.T) {
 }
 
 func TestInterceptorSetRoundTripperFunc(t *testing.T) {
-	inctr := httpi.New()
-	cli := &http.Client{Transport: inctr}
+	transport := httpi.NewTransport()
+	cli := &http.Client{Transport: transport}
 
 	t.Run("custom body", func(t *testing.T) {
-		inctr.SetRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
+		transport.SetRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
 			return &http.Response{
 				StatusCode: 200,
 				Body:       io.NopCloser(bytes.NewReader(body)),
@@ -100,7 +100,7 @@ func TestInterceptorSetRoundTripperFunc(t *testing.T) {
 	})
 
 	t.Run("other status code", func(t *testing.T) {
-		inctr.SetRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
+		transport.SetRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
 			return &http.Response{
 				StatusCode: 201,
 				Body:       io.NopCloser(bytes.NewReader(body)),
@@ -126,7 +126,7 @@ func TestInterceptorSetRoundTripperFunc(t *testing.T) {
 	})
 
 	t.Run("error", func(t *testing.T) {
-		inctr.SetRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
+		transport.SetRoundTripperFunc(func(r *http.Request) (*http.Response, error) {
 			return nil, errTest
 		})
 
@@ -141,11 +141,11 @@ func TestInterceptorSetRoundTripperFunc(t *testing.T) {
 }
 
 func TestInterceptorSetRequestValidation(t *testing.T) {
-	inctr := httpi.New()
-	cli := &http.Client{Transport: inctr}
+	transport := httpi.NewTransport()
+	cli := &http.Client{Transport: transport}
 
 	t.Run("valid request", func(t *testing.T) {
-		inctr.SetRequestValidationFunc(func(r *http.Request) error {
+		transport.SetRequestValidationFunc(func(r *http.Request) error {
 			return nil
 		})
 
@@ -160,7 +160,7 @@ func TestInterceptorSetRequestValidation(t *testing.T) {
 	})
 
 	t.Run("return error", func(t *testing.T) {
-		inctr.SetRequestValidationFunc(func(_ *http.Request) error {
+		transport.SetRequestValidationFunc(func(_ *http.Request) error {
 			return errTest
 		})
 
@@ -174,7 +174,7 @@ func TestInterceptorSetRequestValidation(t *testing.T) {
 	})
 
 	t.Run("validate request", func(t *testing.T) {
-		inctr.SetRequestValidationFunc(func(r *http.Request) error {
+		transport.SetRequestValidationFunc(func(r *http.Request) error {
 			if r.URL.Scheme != "https" {
 				return errors.New("invalid scheme")
 			}
