@@ -1,4 +1,4 @@
-## httpi
+## httpi (http interceptor)
 
 ```sh
 go get github.com/izaakdale/httpi
