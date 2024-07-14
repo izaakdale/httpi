@@ -4,7 +4,7 @@
 go get github.com/izaakdale/httpi
 ```
 
-### A RoundTripper library that is designed for mocking http.Client calls.
+### A RoundTripper package that is designed for mocking http.Client calls.
 
 Get a Transport (implements http.RoundTripper) and use SetRoundTripperFunc to define the response and error retuned by client requests.
 ```go
