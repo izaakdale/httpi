@@ -4,9 +4,9 @@
 go get github.com/izaakdale/httpi
 ```
 
-### A RoundTripper library that is primarily designed mocking/stubbing http.Client calls.
+### A RoundTripper library that is designed for mocking http.Client calls.
 
-Get a Transport (implements RoundTripper) and use SetRoundTripperFunc to define the response and error retuned by client requests.
+Get a Transport (implements http.RoundTripper) and use SetRoundTripperFunc to define the response and error retuned by client requests.
 ```go
 transport := httpi.NewTransport()
 cli := &http.Client{Transport: transport}
