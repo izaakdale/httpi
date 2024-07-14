@@ -55,8 +55,14 @@ _, err = http.Get(url)
 
 Or use the WithOptions
 ```go
-transport := httpi.NewTransport(WithRoundTripperFunc(someRoundTripFunc), WithRequestValidationFunc(someValidationFunc))
+transport := httpi.NewTransport(
+	WithRoundTripperFunc(someRoundTripFunc),
+	WithRequestValidationFunc(someValidationFunc),
+)
 cli := &http.Client{Transport: transport}
 
-cli = httpi.NewClient(WithRoundTripperFunc(someFunc), WithRequestValidationFunc(someValidationFunc))
+cli = httpi.NewClient(
+	WithRoundTripperFunc(someFunc),
+	WithRequestValidationFunc(someValidationFunc),
+)
 ```
